@@ -43,11 +43,10 @@ public class HelloController
         {
             datasourceAnalyzer.getDataFromMysql();
             return "solveV55Data finished!";
-
-        } catch (IOException e)
+        } catch (Exception e)
         {
             e.printStackTrace();
-            return "solveV55Data failed!";
+            return "solveV55Data failed! " + e.getMessage();
         }
     }
 

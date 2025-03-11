@@ -219,18 +219,18 @@ public class PostJsonAnalyzer
             cell.setCellValue(headers[i]);
 
             // 设置列宽
-            sheet.setColumnWidth(i, 256 * 30); // 每列宽度为20个字符
+            sheet.setColumnWidth(i, 256 * 30); // 每列宽度为30个字符
 
             // 如果是最后一列，设置列宽宽一点
             if (i == headers.length - 1)
             {
-                sheet.setColumnWidth(i, 256 * 120); // 最后一列宽度为50个字符
+                sheet.setColumnWidth(i, 256 * 120); // 最后一列宽度为120个字符
             } else if (i == 0)
             {
                 sheet.setColumnWidth(i, 256 * 5); // 第1列宽度为5个字符
             } else if (i == 2)
             {
-                sheet.setColumnWidth(i, 256 * 40); // 第3列宽度为5个字符
+                sheet.setColumnWidth(i, 256 * 40); // 第3列宽度为40个字符
             }
 
 
@@ -345,7 +345,7 @@ public class PostJsonAnalyzer
      *         Form-data键值对
      * @return 格式化后的JSON字符串
      */
-    private static String formatFormData(Map<String, String> formdata)
+    public static String formatFormData(Map<String, String> formdata)
     {
         try
         {

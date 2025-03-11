@@ -1,6 +1,10 @@
 package com.idea;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
@@ -103,46 +107,11 @@ public class DatasourceAnalyzer
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("V55动态表格请求");
 
-        // 表头
-        Row headerRow = sheet.createRow(0);
-        String[] headers = {"序号", "功能名", "请求URL", "请求Form-Data"};
-        for (int i = 0; i < headers.length; i++)
-        {
-            Cell cell = headerRow.createCell(i);
-            cell.setCellValue(headers[i]);
-
-            // 设置列宽
-            sheet.setColumnWidth(i, 256 * 30); // 每列宽度为20个字符
-
-            // 如果是最后一列，设置列宽宽一点
-            if (i == headers.length - 1)
-            {
-                sheet.setColumnWidth(i, 256 * 120); // 最后一列宽度为50个字符
-            } else if (i == 0)
-            {
-                sheet.setColumnWidth(i, 256 * 5); // 第1列宽度为5个字符
-            } else if (i == 2)
-            {
-                sheet.setColumnWidth(i, 256 * 40); // 第3列宽度为5个字符
-            }
-
-            // 设置自动换行
-            CellStyle wrapStyle = sheet.getWorkbook().createCellStyle();
-            wrapStyle.setWrapText(true);
-            wrapStyle.setVerticalAlignment(VerticalAlignment.CENTER);            // 设置垂直居中
-            cell.setCellStyle(wrapStyle);
-        }
+        // 创建表头行
+        createHeaderRow(sheet);
 
         // 填充数据
-        for (int i = 0; i < list.size(); i++)
-        {
-            Map<String, Object> map = list.get(i);
-            Row row = sheet.createRow(i + 1);
-            row.createCell(0).setCellValue(i + 1);
-            row.createCell(1).setCellValue((String) map.get("table_title"));
-            row.createCell(2).setCellValue((String) map.get("url"));
-            row.createCell(3).setCellValue((String) map.get("data_source"));
-        }
+        createDataRow(sheet, list);
 
 
         // 写入文件
@@ -162,5 +131,94 @@ public class DatasourceAnalyzer
         // 关闭工作簿
         workbook.close();
         log.info("Excel文件生成成功：" + excelPath.toAbsolutePath());
+    }
+
+    /**
+     * @MethodName: createHeaderRow
+     * @Description: 创建表头行
+     * @param sheet
+     * @Return void
+     */
+    private static void createHeaderRow(Sheet sheet)
+    {
+        // 表头
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"序号", "功能名", "请求URL", "请求Form-Data"};
+        for (int i = 0; i < headers.length; i++)
+        {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+
+            // 设置列宽
+            sheet.setColumnWidth(i, 256 * 30); // 每列宽度为20个字符
+
+            // 如果是最后一列，设置列宽宽一点
+            if (i == headers.length - 1)
+            {
+                sheet.setColumnWidth(i, 256 * 120); // 最后一列宽度为120个字符
+            } else if (i == 0)
+            {
+                sheet.setColumnWidth(i, 256 * 5); // 第1列宽度为5个字符
+            } else if (i == 2)
+            {
+                sheet.setColumnWidth(i, 256 * 40); // 第3列宽度为40个字符
+            }
+
+            // 设置自动换行
+            CellStyle wrapStyle = sheet.getWorkbook().createCellStyle();
+            wrapStyle.setWrapText(true);
+            wrapStyle.setVerticalAlignment(VerticalAlignment.CENTER);            // 设置垂直居中
+            cell.setCellStyle(wrapStyle);
+        }
+    }
+
+
+    /**
+     * @MethodName: createDataRow
+     * @Description: 填充数据
+     * @param sheet
+     * @param list
+     * @Return void
+     */
+    private static void createDataRow(Sheet sheet, List<Map<String, Object>> list)
+    {
+        for (int i = 0; i < list.size(); i++)
+        {
+            Map<String, Object> map = list.get(i);
+            Row row = sheet.createRow(i + 1);
+            row.createCell(0).setCellValue(i + 1);
+            row.createCell(1).setCellValue((String) map.get("table_title"));
+            row.createCell(2).setCellValue((String) map.get("url"));
+//            row.createCell(3).setCellValue((String) map.get("data_source"));
+
+            // 设置Form-data列的样式（自动换行）
+            CellStyle wrapStyle = sheet.getWorkbook().createCellStyle();
+            wrapStyle.setWrapText(true);
+            wrapStyle.setVerticalAlignment(VerticalAlignment.CENTER); // 设置垂直居中
+
+
+            // Form-data列
+            Cell formdataCell = row.createCell(3);
+            formdataCell.setCellStyle(wrapStyle);
+            formdataCell.setCellValue(formatJSON((String) map.get("data_source")));
+        }
+    }
+
+    /**
+     * @MethodName: formatJSON
+     * @Description: 格式化JSON字符串，使其自动换行与缩进
+     * @param jsonStr
+     * @Return String
+     */
+    private static String formatJSON(String jsonStr)
+    {
+        if (jsonStr == null || jsonStr.isEmpty())
+        {
+            return "";
+        }
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        JsonElement jsonElement = JsonParser.parseString(jsonStr);
+        String formattedJson = gson.toJson(jsonElement);
+        return formattedJson;
     }
 }
