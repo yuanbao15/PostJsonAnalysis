@@ -102,6 +102,26 @@ public class DatasourceAnalyzer
                     String bean = objDS.getString("bean");
                     String method = objDS.getString("method");
                     String url = bean + "!" + method + ".m";
+
+                    // 如果包含了param传参，则拼接到url后面
+                    if (objDS.containsKey("params"))
+                    {
+                        JSONObject objParams = objDS.getJSONObject("params");
+                        if (objParams != null)
+                        {
+                            String paramStr = "";
+                            for (String key : objParams.keySet())
+                            {
+                                String value = objParams.getString(key);
+                                paramStr += key + "=" + value + "&";
+                            }
+                            if (!ObjectUtils.isEmpty(paramStr) && paramStr.endsWith("&"))
+                            {
+                                paramStr = paramStr.substring(0, paramStr.length() - 1);
+                                url += "?" + paramStr;
+                            }
+                        }
+                    }
                     map.put("url", url);
                 }
 
@@ -371,7 +391,7 @@ public class DatasourceAnalyzer
             // Form-data列
             Cell formdataCell = row.createCell(3);
             formdataCell.setCellStyle(wrapStyle);
-            formdataCell.setCellValue(formatJSON((String) map.get("data_source")));
+            formdataCell.setCellValue((String) map.get("data_source")); // 不用formatJSON格式化了
 
             // Grid配置列
             Cell gridCell = row.createCell(4);
@@ -411,7 +431,7 @@ public class DatasourceAnalyzer
             // Form-data列
             Cell formdataCell = row.createCell(3);
             formdataCell.setCellStyle(wrapStyle);
-            formdataCell.setCellValue(formatJSON((String) map.get("data_source")));
+            formdataCell.setCellValue((String) map.get("data_source"));
 
             // Grid配置列
             Cell gridCell = row.createCell(4);
