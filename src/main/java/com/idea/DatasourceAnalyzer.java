@@ -230,6 +230,12 @@ public class DatasourceAnalyzer
                         String refName = column.getString("refName");
 
                         JSONObject objNew = new JSONObject();
+                        // 增加判定如果字段设置为忽略了，则不添加进columns中
+                        if (column.containsKey("isIgnore") && column.getBoolean("isIgnore"))
+                        {
+                            continue;
+                        }
+
 //                        objNew.put("label", label);
                         objNew.put("name", prop); // prop 改为name
                         // refEntity和refName 不一定有，有则加入
