@@ -21,7 +21,7 @@ import java.util.Map;
 
 /**
  * @ClassName: DatasourceAnalyzer
- * @Description: TODO <br>
+ * @Description: 提取接口数据输出Excel：连接MOM V55动态表格配置获取数据后提取接口信息，需要拼接url和关键字段信息，之后输出excel <br>
  * @Author: yuanbao
  * @Date: 2025/3/10
  **/
@@ -216,6 +216,7 @@ public class DatasourceAnalyzer
             // 提取columns信息
             if (jsonObject.containsKey("columns"))
             {
+                // columns为数组，遍历提取
                 String columns = jsonObject.getString("columns");
                 if (!ObjectUtils.isEmpty(columns))
                 {
@@ -226,19 +227,20 @@ public class DatasourceAnalyzer
                         JSONObject column = jsonArray.getJSONObject(i);
                         String label = column.getString("label");
                         String prop = column.getString("prop");
-                        String refEntity = column.getString("refEntity");
-                        String refName = column.getString("refName");
 
                         JSONObject objNew = new JSONObject();
-                        // 增加判定如果字段设置为忽略了，则不添加进columns中
-                        if (column.containsKey("isIgnore") && column.getBoolean("isIgnore"))
+                        // 增加判定如果字段设置为忽略了，则不添加进columns中. 注意不是isIgnore，而是pass
+                        if (column.containsKey("pass") && column.getBoolean("pass"))
                         {
                             continue;
                         }
 
 //                        objNew.put("label", label);
                         objNew.put("name", prop); // prop 改为name
+
                         // refEntity和refName 不一定有，有则加入
+                        String refEntity = column.getString("refEntity");
+                        String refName = column.getString("refName");
                         if (!ObjectUtils.isEmpty(refEntity))
                         {
                             objNew.put("refEntity", refEntity);
